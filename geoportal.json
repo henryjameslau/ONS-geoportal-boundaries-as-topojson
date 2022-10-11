@@ -1,0 +1,21 @@
+{
+ "currentVersion": 10.71,
+ "folders": [
+  "Administrative_Boundaries",
+  "Census_Boundaries",
+  "Electoral_Boundaries",
+  "Eurostat_Boundaries",
+  "Health_Boundaries",
+  "Other_Boundaries",
+  "Other_Products",
+  "Postcodes",
+  "Test",
+  "Utilities"
+ ],
+ "services": [
+  {
+   "name": "SampleWorldCities",
+   "type": "MapServer"
+  }
+ ]
+}
