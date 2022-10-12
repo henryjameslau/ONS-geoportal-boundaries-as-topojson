@@ -38,13 +38,13 @@ if __name__ == "__main__":
 
     for i in filtered:
         name=i.split('/')[1]
-        url='https://ons-inspire.esriuk.com/arcgis/rest/services/'+i+'/FeatureServer/0/query?where=1%3D1&outFields=*&outSR=4326&f=json'
-
+        info=requests.get('https://ons-inspire.esriuk.com/arcgis/rest/services/'+i+'/FeatureServer/?f=pjson')
+        info=info.json()
+        url='https://ons-inspire.esriuk.com/arcgis/rest/services/'+i+'/FeatureServer/'+str(info['layers'][0]['id'])+'/query?where=1%3D1&outFields=*&outSR=4326&f=json'
         res=requests.get(url)
         if res.status_code==200:
-            geojson = gpd.read_file("https://ons-inspire.esriuk.com/arcgis/rest/services/"+i+"/FeatureServer/0/query?where=1%3D1&outFields=*&outSR=4326&f=json")
-            #drop unnecessary columns
-    #         print(geojson.columns)
+            geojson = gpd.read_file('https://ons-inspire.esriuk.com/arcgis/rest/services/'+i+'/FeatureServer/'+str(info['layers'][0]['id'])+'/query?where=1%3D1&outFields=*&outSR=4326&f=json')
+
 
             # find the names of the columns that have CD in or NM
             for j in geojson.columns:
