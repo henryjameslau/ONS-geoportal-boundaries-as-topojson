@@ -13,8 +13,8 @@ if __name__ == "__main__":
     print("argv :", sys.argv)
     # open list of boundaries from the geoportal
     file = open(sys.argv[1])
-    areas=json.load(file)
-    folders=areas['folders']
+    loaded=json.load(file)
+    folders=loaded['folders']
 
     areas=[]
 
@@ -36,38 +36,49 @@ if __name__ == "__main__":
         if regexp.search(s['name']):
             filtered.append(s['name'])
 
-    # loop through areas
     for i in filtered:
+        name=i.split('/')[1]
+        url='https://ons-inspire.esriuk.com/arcgis/rest/services/'+i+'/FeatureServer/0/query?where=1%3D1&outFields=*&outSR=4326&f=json'
 
-        # name of boundary
-        print(i.split('/')[1])
+        res=requests.get(url)
+        if res.status_code==200:
+            geojson = gpd.read_file("https://ons-inspire.esriuk.com/arcgis/rest/services/"+i+"/FeatureServer/0/query?where=1%3D1&outFields=*&outSR=4326&f=json")
+            #drop unnecessary columns
+    #         print(geojson.columns)
 
-        # read the file as a geojson
-        geojson=gpd.read_file("https://ons-inspire.esriuk.com/arcgis/rest/services/"+i+"/FeatureServer/0/query?where=1%3D1&outFields=*&outSR=4326&f=json")
+            # find the names of the columns that have CD in or NM
+            for j in geojson.columns:
+                if re.search(r'(nmw)',j):#drop any NMW
+                    geojson=geojson.drop(columns=[j])
+                if re.search(r'cd',j):#look for fields with CD and rename it
+                    geojson=geojson.rename(columns={j:'AREACD'})
+                if re.search(r'(nm)(?!nmw)',j):#look for NM but not NMW and rename it AREANM
+                    geojson=geojson.rename(columns={j:'AREANM'})
+                if re.search(r'bng_e',j):#drop any with BNG_e
+                    geojson=geojson.drop(columns=[j])
+                if re.search(r'bng_n',j):#drop any with BNG_n
+                    geojson=geojson.drop(columns=[j])
+                if re.search(r'long',j):#drop any with long
+                    geojson=geojson.drop(columns=[j])
+                if re.search(r'lat',j):#drop any with lat
+                    geojson=geojson.drop(columns=[j])
+                if re.search(r'LAB',j):
+                    geojson=geojson.drop(columns=[j])
+                if re.search(r'Shape_',j):#drop any with Shape__
+                    geojson=geojson.drop(columns=[j])
+                if j=='OBJECTID':#drop any with long, lat, objectid
+                    geojson=geojson.drop(columns=[j])
 
-        # Keep and rename the columns we want and drop any others
-        for j in geojson.columns:
-            if re.search(r'(nmw)',j):#drop any NMW
-                geojson=geojson.drop(columns=[j])
-            if re.search(r'cd',j):#look for fields with CD and rename it
-                geojson=geojson.rename(columns={j:'AREACD'})
-            if re.search(r'(nm)(?!nmw)',j):#look for NM but not NMW and rename it AREANM
-                geojson=geojson.rename(columns={j:'AREANM'})
-            if re.search(r'bng',j):#drop any with BNG
-                geojson=geojson.drop(columns=[j])
-            if re.search(r'LAB',j):
-                geojson=geojson.drop(columns=[j])
-            if re.search(r'Shape_',j):#drop any with Shape__
-                geojson=geojson.drop(columns=[j])
-            if j=='long' or j=='lat' or j=='OBJECTID':#drop any with long, lat, objectid
-                geojson=geojson.drop(columns=[j])
+            # https://stackoverflow.com/questions/41959874/python-how-to-handle-folder-creation-if-folder-already-exists
+            # make a folder
+            os.makedirs('./outputs',exist_ok=True)
 
-        #     make a folder if one doesn't exist
-        os.makedirs('./outputs',exist_ok=True)
-
-        pathtosave='./outputs/'+i.replace("/","--")+'.json'
-        # convert to topojson and save
-        tp.Topology(geojson).to_json(fp=pathtosave)
+            # save as topojson
+            newname=i.replace("/","--")
+            tp.Topology(geojson).to_json(fp='./outputs/'+newname+'.json')
+            print("Success:"+name)
+        else:
+            print("Failed:"+name)
 
     # close file
     file.close()
