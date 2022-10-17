@@ -39,10 +39,10 @@ if __name__ == "__main__":
     for i in filtered:
         name=i.split('/')[1]
         info=requests.get('https://ons-inspire.esriuk.com/arcgis/rest/services/'+i+'/FeatureServer/?f=pjson')
-        info=info.json()
-        url='https://ons-inspire.esriuk.com/arcgis/rest/services/'+i+'/FeatureServer/'+str(info['layers'][0]['id'])+'/query?where=1%3D1&outFields=*&outSR=4326&f=json'
-        res=requests.get(url)
-        if res.status_code==200:
+        if info.status_code==200:
+            info=info.json()
+            url='https://ons-inspire.esriuk.com/arcgis/rest/services/'+i+'/FeatureServer/'+str(info['layers'][0]['id'])+'/query?where=1%3D1&outFields=*&outSR=4326&f=json'
+            res=requests.get(url)
             geojson = gpd.read_file('https://ons-inspire.esriuk.com/arcgis/rest/services/'+i+'/FeatureServer/'+str(info['layers'][0]['id'])+'/query?where=1%3D1&outFields=*&outSR=4326&f=json')
 
 
