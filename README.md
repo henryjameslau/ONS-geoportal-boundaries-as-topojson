@@ -4,7 +4,7 @@ Uses [Github flat](https://octo.github.com/projects/flat-data) to automatically 
 Based off [`pierrotsmnrd`'s example](https://github.com/pierrotsmnrd/flat_data_py_example) of using python to run the postprocessing part. 
 
 # Sounds great, but where are the topojsons
-You can find the topojson files in the [outputs folder](https://github.com/henryjameslau/topojson/tree/main/outputs)
+You can find the topojson files in the [outputs folder](https://github.com/henryjameslau/ONS-geoportal-boundaries-as-topojson/tree/main/outputs)
 
 # NB
 This doesn't have every boundary from the geoportal. Full extent files were too big so it's just generalised, super generalised and ultra generalised geographies.
