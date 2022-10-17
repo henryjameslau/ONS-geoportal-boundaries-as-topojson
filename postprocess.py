@@ -74,8 +74,7 @@ if __name__ == "__main__":
             os.makedirs('./outputs',exist_ok=True)
 
             # save as topojson
-            newname=i.replace("/","--")
-            tp.Topology(geojson).to_json(fp='./outputs/'+newname+'.json')
+            tp.Topology(geojson).to_json(fp='./outputs/'+name+'.json')
             print("Success:"+name)
         else:
             print("Failed:"+name)
